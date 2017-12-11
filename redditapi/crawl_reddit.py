@@ -24,10 +24,7 @@ def crawl_reddit(list_subreddit, hdr):
             url = 'https://www.reddit.com/r/{}/.json'.format(sub)
             req = requests.get(url, headers=hdr)
             json_data = json.loads(req.text)
-            # posts = json.dumps(json_data['data']['children'], indent=4, sort_keys=True)
-            # print(posts)
-            # print(len(json_data['data']['children']))
-            # print(type(json_data['data']['children']))
+
             data_all = []
             entries = json_data['data']['children']
             for entry in entries:
@@ -41,7 +38,7 @@ def crawl_reddit(list_subreddit, hdr):
                 req = requests.get(url, headers=hdr)
                 data = json.loads(req.text)
                 entries = data['data']['children']
-                # pprint(data)
+
                 for entry in entries:
                     if entry['data']['domain'] == 'self.{}'.format(sub):
                         data_all.append(entry)

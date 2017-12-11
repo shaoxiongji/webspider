@@ -2,15 +2,10 @@
 # -*- coding: utf-8 -*-
 import json
 import datetime
-import time
 import os
 import csv
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
 
 def gen_sequences(path_base, subreddit):
@@ -30,12 +25,6 @@ def gen_sequences(path_base, subreddit):
     print('Generating sequences of {} ...'.format(subreddit))
     with open(os.path.join(path_base, 'api_coms/sub_{}.json'.format(subreddit)), 'r') as fr:
         list_data = json.load(fr)
-    path_seq = '../api_seq/sub_{}.json'.format(subreddit)
-    # if not os.path.isfile(path_seq):
-    #     seq_all, seq_crawled = [], []
-    # else:
-    #     with open(path_seq, mode='r', encoding='utf-8') as fr:
-    #         seq_all = json.load(fr)
     seq_all = []
     list_com_count = []
     for item in tqdm(list_data):
@@ -51,8 +40,6 @@ def gen_sequences(path_base, subreddit):
                 if item_child['kind'] != 'more':
                     comment = item_child['data']
                     list_posts.append((comment['created_utc'], comment['author'], comment['body'], comment['ups']))
-                    # print(comment.keys())
-                    # print(comment['depth'])
                     if not comment['replies'] == '':
                         replies = comment['replies']['data']['children']
                         for re in replies:
@@ -73,7 +60,6 @@ def gen_sequences(path_base, subreddit):
                 else:
                     with open(os.path.join(path_base, 'more_urls.txt'), 'a') as fw:
                         fw.write(child_0['url'])
-            # post_length = len(list_posts)
             seq_data = {'subreddit': subreddit,
                         'author': author,
                         'list_posts': list_posts}
