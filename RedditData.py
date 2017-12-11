@@ -18,10 +18,12 @@ from nltk.stem import SnowballStemmer
 
 
 class RedditData(object):
-    # def __init__(self):
-    #     # self.path = source_path
-
     def clean_text(self, text):
+        """
+        Clean the text
+        :param text: str
+        :return:
+        """
         text = re.sub(r"[^A-Za-z0-9^,!.\/'+-=]", " ", text)
         text = re.sub(r"what's", "what is ", text)
         # text = re.sub(r"\'s", " ", text)
@@ -54,7 +56,12 @@ class RedditData(object):
         return text
 
     def json2excel(self, file_path, files_list):
-        # convert json file to csv
+        """
+        Convert json file to csv
+        :param file_path: path of csv files
+        :param files_list: list of json files
+        :return:
+        """
         for file_name in files_list:
             with open(file_path + file_name, 'r') as f:
                 reddit_items = json.load(f)
@@ -66,6 +73,11 @@ class RedditData(object):
             reddit.to_excel(file_path+'{}.xlsx'.format(file_name[:-5]), index=False)
 
     def gen_suicide(self, path_st):
+        """
+        Collect all suicide subreddit and save as xlsx file
+        :param path_st: the path of folder contains posts of suicide subreddits
+        :return: df.DataFrame of posts
+        """
         files_pos = os.listdir(path_st)
         files_json = []
         for file in files_pos:
@@ -96,6 +108,11 @@ class RedditData(object):
         return df_reddit
 
     def gen_nonsuicide(self, subreddit):
+        """
+        Collect all non-suicide subreddit and save as xlsx file
+        :param subreddit: name of subreddits
+        :return:
+        """
         files = []
         path = './crawl_neg/'
         all_neg = os.listdir(path)
@@ -127,6 +144,11 @@ class RedditData(object):
         return reddit
 
     def gen_href(self, data_path):
+        """
+        Collect the href of posts
+        :param data_path: path of source data
+        :return:
+        """
         files = os.listdir(data_path)
         posts_href = []
         count = 0
@@ -145,6 +167,13 @@ class RedditData(object):
             json.dump(posts_href, wf)
 
     def gen_balanced(self, df_pos, df_neg, subreddit):
+        """
+        Sample balanced dataset
+        :param df_pos: DataFrame of positive data
+        :param df_neg: DataFrame of negative data
+        :param subreddit: name of subreddit
+        :return:
+        """
         len_pos = len(df_pos['id'])
         len_neg = len(df_neg['id'])
 
@@ -164,6 +193,11 @@ class RedditData(object):
         df.to_excel('./data_balanced/{}.xlsx'.format(subreddit), sheet_name='default', index=False)
 
     def gen_imbalanced(self, file_path='./crawl_neg/'):
+        """
+        Collect imbalanced dataset
+        :param file_path: path of source files
+        :return:
+        """
         files = os.listdir(file_path)
         id, titles, usertexts, y = [], [], [], []
         for file_name in files:
