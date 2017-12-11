@@ -29,3 +29,5 @@ To run the spider, go to [main script](main.py).
 python 3.6
 
 scrapy 1.3.3
+
+requests 2.18.4
