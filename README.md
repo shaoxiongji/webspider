@@ -18,7 +18,9 @@ There are three scripts in the folder of redditapi.
 ## Reddit Scrapy
 Scrapy is used to crawl the [posts](redditscrapy/spiders/reddit.py) and [comments](redditscrapy/spiders/comments.py).
 XPATH and CSS are used to match specific information.
+To run the spider, go to [main script](main.py).
 
 ## Experience Project
 Scrapy is used to crawl the posts from [Experience Project](http://www.experienceproject.com).
 XPATH and CSS are used to match specific information.
+To run the spider, go to [main script](main.py).
