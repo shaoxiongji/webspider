@@ -24,3 +24,8 @@ To run the spider, go to [main script](main.py).
 Scrapy is used to crawl the posts from [Experience Project](http://www.experienceproject.com).
 XPATH and CSS are used to match specific information.
 To run the spider, go to [main script](main.py).
+
+## Requirements
+python 3.6
+
+scrapy 1.3.3
