@@ -8,8 +8,6 @@
 import time
 import scrapy
 import json
-import pandas as pd
-from scrapy.selector import Selector
 
 
 class RedditCommentsSpider(scrapy.Spider):
@@ -23,7 +21,6 @@ class RedditCommentsSpider(scrapy.Spider):
     def start_requests(self):
         with open("./posts_href.json",'r') as f:
             start_urls = json.load(f)
-        # start_urls = ['https://www.reddit.com/r/SuicideWatch/comments/6zav55/you_ever_feel_hollow/']
         for url in start_urls:
             yield scrapy.Request(url=url, callback=self.parse_comments)
 
