@@ -7,10 +7,6 @@
 # @scrapy  : 1.3.3
 
 from scrapy import cmdline
-import datetime
-from RedditDataScrapy import *
-
-date = datetime.date.today().strftime("%Y%m%d")
 
 cmdline.execute("scrapy crawl experience".split())
 
