@@ -8,7 +8,7 @@ from scrapy.selector import Selector
 class RedditSpider(scrapy.Spider):
     name = "reddit"
     allowed_domains = ["reddit.com"]
-    start_urls = ['http://reddit.com/r/movies']
+    start_urls = ['http://reddit.com/r/popular']
 
     def __init__(self):
         self.count = 0
@@ -27,7 +27,6 @@ class RedditSpider(scrapy.Spider):
         if next_button is not None:
             time.sleep(2)
             yield scrapy.Request(next_button, callback=self.parse)
-        # self.log("Saved file %s" % filename)
 
     def parse_posts(self, response):
         posts = response.css('div.entry')[0]

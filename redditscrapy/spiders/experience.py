@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
+import os
 import time
 import scrapy
+import csv
 from scrapy.selector import Selector
 
 
@@ -19,6 +21,37 @@ class RedditSpider(scrapy.Spider):
                       ]
         for url in start_urls:
             yield scrapy.Request(url=url, callback=self.parse)
+
+    def clean_text(self, text):
+        """
+        Clean text data
+        :param df: raw DataFrame
+        :return: DataFrame cleaned
+        """
+        text = re.sub(r"[^A-Za-z0-9^,!.\/'+-=]", " ", text)
+        text = re.sub(r"what's", "what is ", text)
+        text = re.sub(r"\'s", " ", text)
+        text = re.sub(r"\'ve", " have ", text)
+        text = re.sub(r"can't", "cannot ", text)
+        text = re.sub(r"n't", " not ", text)
+        text = re.sub(r"i'm", "i am ", text)
+        text = re.sub(r"i've", "i have ", text)
+        text = re.sub(r"\'re", " are ", text)
+        text = re.sub(r"\'d", " would ", text)
+        text = re.sub(r"\'ll", " will ", text)
+        text = re.sub(r" e g ", " eg ", text)
+        text = re.sub(r" b g ", " bg ", text)
+        text = re.sub(r" u s ", " american ", text)
+        text = re.sub(r"\0s", "0", text)
+        text = re.sub(r"e - mail", "email", text)
+        text = re.sub(r"\&gt", ' ', text)
+        text = re.sub(r"\&amp", ' ', text)
+        text = re.sub(r"\^M", ' ', text)
+        text = re.sub("\s", ' ', text)
+        text = re.sub(r"  ", ' ', text)
+        text = re.sub(r"   ", '', text)
+        text = re.sub(r"^[ ]{3:10}", '', text)
+        return text
 
     def parse(self, response):
         for posts in response.css('div.expression-content'):
@@ -60,11 +93,20 @@ class RedditSpider(scrapy.Spider):
             date = date[2:-2]
         like_count = response.xpath('//*[@id=$val]/span[1]/text()', val=id_like).extract_first()
         time.sleep(1)
-        yield {
+        body = self.clean_text(body)
+        data_dict = {
             'id': id,
             'date': date,
             'age': age,
             'gender': gender,
             'likes': like_count,
-            'body': body
+            'body': body,
         }
+        # yield data_dict
+        file_result = '/data/shji/myprojects/redditscrapy/data_ep/ep.csv'
+        with open(file_result, 'a') as f:
+            field_names = ['id', 'date', 'age', 'gender', 'likes', 'body']
+            writer = csv.DictWriter(f, fieldnames=field_names)
+            if not os.path.isfile(file_result):
+                writer.writeheader()
+            writer.writerow(data_dict)
