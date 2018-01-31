@@ -11,7 +11,7 @@ from scrapy import cmdline
 
 today = date.today().strftime("%Y%m%d")
 
-subreddit = "books"
-cmdline.execute("scrapy crawl reddit -o ./crawl_neg/reddit_{}_{}.json".format(subreddit, today).split())
+subreddit = "popular"
+cmdline.execute("scrapy crawl reddit -o ../crawl_neg/reddit_{}_{}.json".format(subreddit, today).split())
 
 
