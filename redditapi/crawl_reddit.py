@@ -9,7 +9,7 @@ import datetime
 from tqdm import tqdm
 
 
-def crawl_reddit(list_subreddit, hdr):
+def crawl_json(list_subreddit, hdr):
     """
     Crawl each pages of a list of subreddit in specific day.
     :param list_subreddit: list of subreddits
@@ -18,13 +18,16 @@ def crawl_reddit(list_subreddit, hdr):
     """
     today = datetime.date.today().strftime("%Y%m%d")
     for sub in tqdm(list_subreddit):
-        if not os.path.isfile('../api_json/sub_{}_{}.json'.format(sub, today)):
+        if not os.path.isfile('/data/shji/myprojects/redditscrapy/api_json/sub_{}_{}.json'.format(sub, today)):
             print("===================================")
             print('Crawling subreddit {}'.format(sub))
             url = 'https://www.reddit.com/r/{}/.json'.format(sub)
             req = requests.get(url, headers=hdr)
             json_data = json.loads(req.text)
-
+            # posts = json.dumps(json_data['data']['children'], indent=4, sort_keys=True)
+            # print(posts)
+            # print(len(json_data['data']['children']))
+            # print(type(json_data['data']['children']))
             data_all = []
             entries = json_data['data']['children']
             for entry in entries:
@@ -38,7 +41,6 @@ def crawl_reddit(list_subreddit, hdr):
                 req = requests.get(url, headers=hdr)
                 data = json.loads(req.text)
                 entries = data['data']['children']
-
                 for entry in entries:
                     if entry['data']['domain'] == 'self.{}'.format(sub):
                         data_all.append(entry)
@@ -46,7 +48,7 @@ def crawl_reddit(list_subreddit, hdr):
                     break
                 else:
                     num_of_posts = len(data_all)
-            with open('../api_json/sub_{}_{}.json'.format(sub, today), 'w') as f:
+            with open('/data/shji/myprojects/redditscrapy/api_json/sub_{}_{}.json'.format(sub, today), 'w') as f:
                 json.dump(data_all, f)
             print('Crawling posts ...')
             print('{} posts crawled. '.format(len(data_all)))
@@ -68,5 +70,5 @@ if __name__ == '__main__':
     # CPTSD: Complex Post Traumatic Stress Disorder
     # Obsessive-Compulsive Disorder (OCD) is a disorder characterized by two components: obsessions and compulsions.
     # Gamers Fighting Depression's mission is to provide a safe and supportive environment for those who suffer from mental ill health.
-    crawl_reddit(subreddits, header)
+    crawl_json(subreddits, header)
 

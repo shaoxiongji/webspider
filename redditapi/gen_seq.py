@@ -2,10 +2,15 @@
 # -*- coding: utf-8 -*-
 import json
 import datetime
+import time
 import os
 import csv
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 def gen_sequences(path_base, subreddit):
@@ -25,6 +30,12 @@ def gen_sequences(path_base, subreddit):
     print('Generating sequences of {} ...'.format(subreddit))
     with open(os.path.join(path_base, 'api_coms/sub_{}.json'.format(subreddit)), 'r') as fr:
         list_data = json.load(fr)
+    path_seq = '/data/shji/myprojects/redditscrapy/api_seq/sub_{}.json'.format(subreddit)
+    # if not os.path.isfile(path_seq):
+    #     seq_all, seq_crawled = [], []
+    # else:
+    #     with open(path_seq, mode='r', encoding='utf-8') as fr:
+    #         seq_all = json.load(fr)
     seq_all = []
     list_com_count = []
     for item in tqdm(list_data):
@@ -40,6 +51,8 @@ def gen_sequences(path_base, subreddit):
                 if item_child['kind'] != 'more':
                     comment = item_child['data']
                     list_posts.append((comment['created_utc'], comment['author'], comment['body'], comment['ups']))
+                    # print(comment.keys())
+                    # print(comment['depth'])
                     if not comment['replies'] == '':
                         replies = comment['replies']['data']['children']
                         for re in replies:
@@ -48,7 +61,7 @@ def gen_sequences(path_base, subreddit):
                                 continue
                             list_posts.append((comment_child['created_utc'], comment_child['author'],
                                                comment_child['body'], comment_child['ups']))
-                            print((comment_child['created_utc'], comment_child['author'], comment_child['body'], comment_child['ups']))
+                            # print((comment_child['created_utc'], comment_child['author'], comment_child['body'], comment_child['ups']))
                             if not comment_child['replies'] == '':
                                 replies_child = comment_child['replies']['data']['children']
                                 for re_child in replies_child:
@@ -60,6 +73,7 @@ def gen_sequences(path_base, subreddit):
                 else:
                     with open(os.path.join(path_base, 'more_urls.txt'), 'a') as fw:
                         fw.write(child_0['url'])
+            # post_length = len(list_posts)
             seq_data = {'subreddit': subreddit,
                         'author': author,
                         'list_posts': list_posts}
@@ -72,7 +86,7 @@ def gen_sequences(path_base, subreddit):
     data_dict = {'date': datetime.date.today().strftime("%Y%m%d"), 'subreddit': subreddit,
                  'com_num': len(list_com_count), 'com_mean': np.mean(list_com_count),
                  'com_median': np.median(list_com_count), 'com_max': max(list_com_count)}
-    with open('../res_eda/stat.csv', 'a') as f:
+    with open('/data/shji/myprojects/redditscrapy/EDA_res/stat.csv', 'a') as f:
         field_names = ['date', 'subreddit', 'com_num', 'com_mean', 'com_median', 'com_max']
         writer = csv.DictWriter(f, fieldnames=field_names)
         if not os.path.isfile('../res_eda/stat.csv'):
@@ -90,13 +104,8 @@ if __name__ == '__main__':
                   'psychoticreddit', 'schizophrenia', 'traumatoolbox', 'getting_over_it', 'hardshipmates',
                   'emetophobia', 'GFD', 'mentalillness', 'SuicideWatch'
                   ]
-    path_project = "your_path_here"
-    # MMFB: Make Me Feel Better
-    # ADHD: "Attention Deficit Hyperactivity Disorder" is a developmental disorder found in both children and adults.
-    # CPTSD: Complex Post Traumatic Stress Disorder
-    # Obsessive-Compulsive Disorder (OCD) is a disorder characterized by two components: obsessions and compulsions.
-    # Gamers Fighting Depression's mission is to provide a safe and supportive environment for those who suffer from mental ill health.
+    path_project = "/data/shji/myprojects/redditscrapy/"
 
     for sub in subreddits:
-        p = '../api_coms/'
+        p = '/data/shji/myprojects/redditscrapy/api_coms/'
         gen_sequences(path_project, sub)

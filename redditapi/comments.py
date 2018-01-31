@@ -3,9 +3,33 @@ import json
 import time
 import os
 from tqdm import tqdm
-
-from crawl_reddit import crawl_reddit
+import pandas as pd
+from crawl_reddit import crawl_json
 from gen_seq import gen_sequences
+
+
+def read_urls_sw():
+    json_path = '/data/shji/myprojects/redditscrapy/posts_href_7085.json'
+    with open(json_path, 'r') as f:
+        start_urls = json.load(f)
+    return start_urls
+
+
+def crawl_comments_sw(start_urls, hdr, sub, base_path):
+    # num = []
+    data_all = []
+    for u in tqdm(start_urls):
+        url = u + '.json'
+        req = requests.get(url, headers=hdr)
+        json_data = json.loads(req.text)
+        data_all.append(json_data)
+        # num_comments = json_data[0]['data']['children'][0]['data']['num_comments']
+        # num.append(num_comments)
+        # print(num_comments)
+        time.sleep(2)
+    with open(os.path.join(base_path, 'api_coms/sub_{}.json'.format(sub)), 'w') as f:
+        json.dump(data_all, f)
+    print('{} of posts and comments crawled.'.format(len(data_all)))
 
 
 def read_urls_sub(path_json, subreddit):
@@ -27,17 +51,18 @@ def read_urls_sub(path_json, subreddit):
     return start_urls
 
 
-def crawl_comments_sub(start_urls, hdr, sub):
+def crawl_comments_sub(start_urls, hdr, sub, base_path):
     """
     Crawl the comments of subreddit into JSON files with appending
     :param start_urls: lists of URLs of posts
     :param hdr: request header
     :param sub: name of subreddit
+    :param base_path: path of the project
     :return: none, write JSON file
     """
     print("===================================")
     print('Crawling comments of {} ...'.format(sub))
-    path_com = '../api_coms/sub_{}.json'.format(sub)
+    path_com = os.path.join(base_path, 'api_coms/sub_{}.json'.format(sub))
     if not os.path.isfile(path_com):
         data_all, urls_crawled = [], []
     else:
@@ -61,32 +86,21 @@ def crawl_comments_sub(start_urls, hdr, sub):
 
 if __name__ == '__main__':
     header = {
-        'User-Agent': 'your_agent' +
-                      '(by /u/your_user_name)'} # please change this to your own info
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.3.5 (KHTML, like Gecko) Version/11.0.1 Safari/604.3.5' +
+                      '(by /u/sheldonhow)'}
 
-    path_project = "your_path_here"
+    path_project = "/data/shji/myprojects/redditscrapy/"
 
-    subreddits = ['depression', 'StopSelfHarm', 'MMFB', 'offmychest','addiction',
-                  'BipolarReddit', 'ADHD', 'Anxiety', 'CPTSD', 'socialanxiety',
-                  'HealthAnxiety', 'Agoraphobia', 'OCD', 'PanicParty', 'bipolar',
-                  'disability', 'mentalhealth', 'Anger', 'TwoXADHD','alcoholism',
-                  'BipolarSOs', 'BPD', 'dpdr', 'EatingDisorders', 'MaladaptiveDreaming',
-                  'psychoticreddit', 'schizophrenia', 'traumatoolbox', 'getting_over_it', 'hardshipmates',
-                  'emetophobia', 'GFD', 'mentalillness', 'NonZeroDay', 'fuckeatingdisorders', 'SuicideWatch'
-                  ]
-    # MMFB: Make Me Feel Better
-    # ADHD: "Attention Deficit Hyperactivity Disorder" is a developmental disorder found in both children and adults.
-    # CPTSD: Complex Post Traumatic Stress Disorder
-    # Obsessive-Compulsive Disorder (OCD) is a disorder characterized by two components: obsessions and compulsions.
-    # Gamers Fighting Depression's mission is to provide a safe and supportive environment for those who suffer from mental ill health.
+    df_sub = pd.read_csv(os.path.join(path_project, 'subreddits.csv'))
+    subreddits = df_sub['subreddit'].values
 
-    crawl_reddit(list_subreddit=subreddits, hdr=header)
+    crawl_json(list_subreddit=subreddits, hdr=header)
 
     stat_info = []
     for sub in subreddits:
-        p = '../api_json/'
+        p = os.path.join(path_project, 'api_json/')
         urls = read_urls_sub(path_json=p, subreddit=sub)
-        crawl_comments_sub(start_urls=urls, hdr=header, sub=sub)
+        crawl_comments_sub(start_urls=urls, hdr=header, sub=sub, base_path=path_project)
         stat_subreddit = gen_sequences(path_project, sub)
         stat_info.append(stat_subreddit)
 
